@@ -1,5 +1,14 @@
 #include <Arduino.h>
 
+// Pin Definitions
+#define APPS_5V PIN_PC0      // PC0 analog
+#define APPS_3V3 PIN_PC1     // PC1 analog
+#define BRAKE PIN_PC3        // PC3 analog
+#define START_BUTTON PIN_PC4 // PC4 digital input
+
+#define BRAKE_LIGHT PIN_PD2  // PD2 digital output
+#define BUZZER PIN_PD4       // PD4 digital output
+#define DRIVE_LED PIN_PD3    // PD3 digital output
 
 //Constants
 const float BRAKE_THRESHOLD = 0.1f;          // 10% depression for brakes to be considered "depressed"
@@ -17,34 +26,21 @@ const int16_t TORQUE_MAX = 32767;
 
 
 //Definitions
-typedef enum {
+enum VCUState {
     STATE_INIT,
     STATE_STARTIN,
     STATE_BUZZIN,
     STATE_DRIVE
-} VCUState;
+}
 
 // Global
-static VCUState current_state = STATE_INIT;
-static uint32_t state_entry_time = 0;
-static uint32_t fault_start_time = 0;
-static bool fault_detected = false;
+VCUState current_state = STATE_INIT;
+uint32_t state_entry_time = 0;
+uint32_t fault_start_time = 0;
+bool fault_detected = false;
 
-
-// Pin Definitions
-#define APPS_5V PIN_PC0      // PC0 analog
-#define APPS_3V3 PIN_PC1     // PC1 analog
-#define BRAKE PIN_PC3        // PC3 analog
-#define START_BUTTON PIN_PC4 // PC4 digital input
-
-#define BRAKE_LIGHT PIN_PD2  // PD2 digital output
-#define BUZZER PIN_PD4       // PD4 digital output
-#define DRIVE_LED PIN_PD3    // PD3 digital output
 
 // put function definitions here:
-bool check_apps_fault(float apps1, float apps2);
-int16_t calculate_torque(float pedal_percent);
-void set_motor_output(int16_t torque);
 bool check_apps_fault(float apps1, float apps2) {
     float difference = abs(apps1 - apps2);
     return (difference > APPS_FAULT_THRESHOLD);
