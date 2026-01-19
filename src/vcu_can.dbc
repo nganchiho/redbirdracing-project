@@ -1,0 +1,76 @@
+VERSION ""
+
+NS_ :
+    NS_DESC_
+    CM_
+    BA_DEF_
+    BA_
+    VAL_
+    CAT_DEF_
+    CAT_
+    FILTER
+    BA_DEF_DEF_
+    EV_DATA_
+    ENVVAR_DATA_
+    SGTYPE_
+    SGTYPE_VAL_
+    BA_DEF_SGTYPE_
+    BA_SGTYPE_
+    SIG_TYPE_REF_
+    VAL_TABLE_
+    SIG_GROUP_
+    SIG_VALTYPE_
+    SIGTYPE_VALTYPE_
+    BO_TX_BU_
+    BA_DEF_REL_
+    BA_REL_
+    BA_DEF_DEF_REL_
+    BU_SG_REL_
+    BU_EV_REL_
+    BU_BO_REL_
+    SG_MUL_VAL_
+
+BS_:
+
+BU_: VCU MOTOR BMS DEBUG
+
+// ============================================
+// Message Definitions
+// ============================================
+
+// 0x201: Motor Torque Command (VCU -> MOTOR)
+// Fixed length to 3 bytes 
+BO_ 513 MOTOR_TorqueCmd: 3 VCU
+ SG_ CommandByte : 0|8@1+ (1,0) [0|255] "" MOTOR
+ SG_ Torque : 8|16@1- (1,0) [-32768|32767] "Nm" MOTOR
+
+// 0x300: Debug State Message (VCU -> DEBUG)
+BO_ 768 VCU_State: 2 VCU
+ SG_ StatusByte : 0|8@1+ (1,0) [0|255] "" DEBUG
+ SG_ Reserved : 8|8@1+ (1,0) [0|0] "" DEBUG
+
+// 0x301: Debug Pedals Message (VCU -> DEBUG)
+// Byte Order: @1 indicates Intel (Little Endian)
+BO_ 769 VCU_Pedals: 6 VCU
+ SG_ APPS_3V3_Raw : 0|16@1+ (1,0) [0|1023] "raw" DEBUG
+ SG_ APPS_5V_Raw : 16|16@1+ (1,0) [0|1023] "raw" DEBUG
+ SG_ BrakeReading : 32|16@1+ (1,0) [0|1023] "raw" DEBUG
+
+// 0x302: Debug Fault Message (VCU -> DEBUG)
+BO_ 770 VCU_Fault: 6 VCU
+ SG_ APPS3V3_Scaled : 0|16@1+ (1,0) [0|1023] "scaled" DEBUG
+ SG_ APPS5V_Raw : 16|16@1+ (1,0) [0|1023] "raw" DEBUG
+ SG_ APPS_Difference : 32|16@1+ (1,0) [0|1023] "units" DEBUG
+
+// ============================================
+// Value Tables
+// ============================================
+
+// Vehicle State values
+VAL_ 768 StatusByte 3 "DRIVE" 2 "BUZZIN" 1 "STARTIN" 0 "INIT";
+
+// Comments
+CM_ BO_ 513 "Motor torque command from VCU to motor controller. CommandByte=0x90.";
+CM_ BO_ 768 "VCU state info. Status byte packs state, brake, BMS, and fault.";
+CM_ BO_ 769 "Raw pedal readings for debugging.";
+CM_ BO_ 770 "APPS fault information. Sent when sensors differ by >10%.";
